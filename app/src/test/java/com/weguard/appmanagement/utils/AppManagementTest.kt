@@ -166,6 +166,33 @@ class AppManagementTest {
         assertEquals(AppManagementResult.Success, result)
     }
 
+    @Test
+    fun `verify that installApps was called for each app`() = runTest {
+
+        // Given
+        val appManagement = spyk(AppManagement(apps))
+
+        apps.forEach { app ->
+            coEvery { appManagement.downloadAPK(app) } answers {
+                val randomDelay = (5..180).random() * 1000L // Random delay between 5 seconds to 3 minutes
+                advanceTimeBy(randomDelay)
+                DownloadResult.Success(app)
+            }
+            coEvery { appManagement.installApk(app) } answers {
+                val randomDelay = (2..60).random() * 1000L // Random delay between 2 seconds to 1 minute
+                advanceTimeBy(randomDelay)
+                ApkInstallationResult.Success(app)
+            }
+        }
+
+        // When
+        val result = appManagement.execute()
+
+        // Then
+        coVerify(exactly = apps.size) { appManagement.installApps(any(), any()) }
+
+        assertEquals(AppManagementResult.Success, result)
+    }
 
 
 
