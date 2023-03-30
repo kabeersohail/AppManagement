@@ -1,22 +1,30 @@
 package com.weguard.appmanagement.utils
 
+import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 
-class AppManagement(private val apps: List<App>) {
+class AppManagement(
+    private val apps: List<App>
+) {
 
-    val failedApkMapList = mutableListOf<Pair<App, String>>()
-    val downloadedApps = mutableListOf<App>()
-    val installedApps = mutableListOf<App>()
+    private val failedApkMapList = mutableListOf<Pair<App, String>>()
+    private val installedApps = mutableListOf<App>()
+    internal var downloadedApps: MutableList<App> = mutableListOf()
 
     suspend fun execute(): AppManagementResult {
 
         for (app in apps) {
             when (val downloadResult = downloadAPK(app)) {
                 is DownloadResult.Success -> {
-                    downloadedApps.add(downloadResult.app)
+                    val isAdded = downloadedApps.add(downloadResult.app)
+
+                    if(isAdded) {
+                        Log.d("AppManagement", "added downloaded app to downloadedApps list")
+                    }
+
                     installApps(downloadedApps, installedApps)
                 }
                 is DownloadResult.Failure -> {
