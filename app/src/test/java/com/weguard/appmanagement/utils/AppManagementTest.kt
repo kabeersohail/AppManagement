@@ -2,13 +2,16 @@ package com.weguard.appmanagement.utils
 
 import android.util.Log
 import io.mockk.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AppManagementTest {
 
     private val apps = listOf(
@@ -34,8 +37,9 @@ class AppManagementTest {
 
 
     @Test
-    fun `first example test for single app`(): Unit = runBlocking {
+    fun `first example test for single app`(): Unit = runTest {
 
+        // Given
         val mySampleApp = apps.first()
 
         val appManagement = spyk(AppManagement(listOf(mySampleApp)))
@@ -43,8 +47,10 @@ class AppManagementTest {
         coEvery { appManagement.downloadAPK(mySampleApp) } returns DownloadResult.Success(mySampleApp)
         coEvery { appManagement.installApk(mySampleApp) } returns ApkInstallationResult.Success(mySampleApp)
 
+        // When
         val result = appManagement.execute()
 
+        // Then
         coVerify(exactly = 1) { appManagement.downloadAPK(mySampleApp) }
 
         assertTrue(appManagement.downloadedApps.contains(mySampleApp))
@@ -56,8 +62,9 @@ class AppManagementTest {
     }
 
     @Test
-    fun `first example test for multiple apps`(): Unit = runBlocking {
+    fun `first example test for multiple apps`(): Unit = runTest {
 
+        // Given
         val appManagement = spyk(AppManagement(apps))
 
         apps.forEach { app ->
@@ -65,8 +72,10 @@ class AppManagementTest {
             coEvery { appManagement.installApk(app) } returns ApkInstallationResult.Success(app)
         }
 
+        // When
         val result = appManagement.execute()
 
+        // Then
         coVerify(exactly = 6) { appManagement.downloadAPK(any()) }
         coVerify(exactly = 6) { appManagement.installApk(any()) }
         assertTrue(appManagement.downloadedApps.containsAll(apps))
@@ -77,20 +86,78 @@ class AppManagementTest {
     @Test
     fun `first test case to verify order for single app`() = runBlocking {
 
+        // Given
         val mySampleApp = apps.first()
         val appManagement = spyk(AppManagement(listOf(mySampleApp)))
 
         coEvery { appManagement.downloadAPK(mySampleApp) } returns DownloadResult.Success(mySampleApp)
         coEvery { appManagement.installApk(mySampleApp) } returns ApkInstallationResult.Success(mySampleApp)
 
+        // When
         val result = appManagement.execute()
 
-        coVerify(exactly = 1) { appManagement.downloadAPK(mySampleApp) }
+        // Then
 
-        assertTrue(appManagement.downloadedApps.contains(mySampleApp))
-        assertEquals(1, appManagement.downloadedApps.size)
+        coVerifyOrder {
+            appManagement.downloadAPK(mySampleApp)
+            appManagement.installApk(mySampleApp)
+        }
 
-        coVerify(exactly = 1) { appManagement.installApk(mySampleApp) }
+        assertEquals(AppManagementResult.Success, result)
+
+    }
+
+    @Test
+    fun `first test case to verify order for multiple apps`() = runTest {
+
+        // Given
+        val appManagement = spyk(AppManagement(apps))
+
+        apps.forEach { app ->
+            coEvery { appManagement.downloadAPK(app) } returns DownloadResult.Success(app)
+            coEvery { appManagement.installApk(app) } returns ApkInstallationResult.Success(app)
+        }
+
+        // When
+        val result = appManagement.execute()
+
+        // Then
+        coVerifyOrder {
+            apps.forEach { app ->
+                appManagement.downloadAPK(app)
+                appManagement.installApk(app)
+            }
+        }
+
+        assertEquals(AppManagementResult.Success, result)
+    }
+
+
+    @Test
+    fun `test case with random delays, with no actual delay`() = runTest {
+        val appManagement = spyk(AppManagement(apps))
+
+        apps.forEach { app ->
+            coEvery { appManagement.downloadAPK(app) } answers {
+                val randomDelay = (5..180).random() * 1000L // Random delay between 5 seconds to 3 minutes
+                advanceTimeBy(randomDelay)
+                DownloadResult.Success(app)
+            }
+            coEvery { appManagement.installApk(app) } answers {
+                val randomDelay = (2..60).random() * 1000L // Random delay between 2 seconds to 1 minute
+                advanceTimeBy(randomDelay)
+                ApkInstallationResult.Success(app)
+            }
+        }
+
+        val result = appManagement.execute()
+
+        apps.forEach { app ->
+            coVerifyOrder {
+                appManagement.downloadAPK(app)
+                appManagement.installApk(app)
+            }
+        }
 
         assertEquals(AppManagementResult.Success, result)
     }
