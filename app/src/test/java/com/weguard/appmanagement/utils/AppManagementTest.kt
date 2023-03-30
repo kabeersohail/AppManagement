@@ -135,6 +135,8 @@ class AppManagementTest {
 
     @Test
     fun `test case with random delays, with no actual delay`() = runTest {
+
+        // Given
         val appManagement = spyk(AppManagement(apps))
 
         apps.forEach { app ->
@@ -150,8 +152,10 @@ class AppManagementTest {
             }
         }
 
+        // When
         val result = appManagement.execute()
 
+        // Then
         apps.forEach { app ->
             coVerifyOrder {
                 appManagement.downloadAPK(app)
@@ -161,6 +165,8 @@ class AppManagementTest {
 
         assertEquals(AppManagementResult.Success, result)
     }
+
+
 
 
 }

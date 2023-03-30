@@ -11,7 +11,7 @@ class AppManagement(
 ) {
 
     private val failedApkMapList = mutableListOf<Pair<App, String>>()
-    private val installedApps = mutableListOf<App>()
+    internal val installedApps = mutableListOf<App>()
     internal var downloadedApps: MutableList<App> = mutableListOf()
 
     suspend fun execute(): AppManagementResult {
@@ -39,7 +39,7 @@ class AppManagement(
         }
     }
 
-    private suspend fun installApps(
+    internal suspend fun installApps(
         downloadedApps: List<App>,
         installedApps: MutableList<App>
     ) {
