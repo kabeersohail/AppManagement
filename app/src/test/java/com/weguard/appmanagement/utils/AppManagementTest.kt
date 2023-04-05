@@ -44,7 +44,7 @@ class AppManagementTest {
 
         val appManagement = spyk(AppManagement(listOf(mySampleApp)))
 
-        coEvery { appManagement.downloadAPK(mySampleApp) } returns DownloadResult.Success(mySampleApp)
+        coEvery { appManagement.downloadAPK(mySampleApp) } returns AppDownloadResult.Success(mySampleApp)
         coEvery { appManagement.installApk(mySampleApp) } returns ApkInstallationResult.Success(mySampleApp)
 
         // When
@@ -68,7 +68,7 @@ class AppManagementTest {
         val appManagement = spyk(AppManagement(apps))
 
         apps.forEach { app ->
-            coEvery { appManagement.downloadAPK(app) } returns DownloadResult.Success(app)
+            coEvery { appManagement.downloadAPK(app) } returns AppDownloadResult.Success(app)
             coEvery { appManagement.installApk(app) } returns ApkInstallationResult.Success(app)
         }
 
@@ -90,7 +90,7 @@ class AppManagementTest {
         val mySampleApp = apps.first()
         val appManagement = spyk(AppManagement(listOf(mySampleApp)))
 
-        coEvery { appManagement.downloadAPK(mySampleApp) } returns DownloadResult.Success(mySampleApp)
+        coEvery { appManagement.downloadAPK(mySampleApp) } returns AppDownloadResult.Success(mySampleApp)
         coEvery { appManagement.installApk(mySampleApp) } returns ApkInstallationResult.Success(mySampleApp)
 
         // When
@@ -114,7 +114,7 @@ class AppManagementTest {
         val appManagement = spyk(AppManagement(apps))
 
         apps.forEach { app ->
-            coEvery { appManagement.downloadAPK(app) } returns DownloadResult.Success(app)
+            coEvery { appManagement.downloadAPK(app) } returns AppDownloadResult.Success(app)
             coEvery { appManagement.installApk(app) } returns ApkInstallationResult.Success(app)
         }
 
@@ -143,7 +143,7 @@ class AppManagementTest {
             coEvery { appManagement.downloadAPK(app) } answers {
                 val randomDelay = (5..180).random() * 1000L // Random delay between 5 seconds to 3 minutes
                 advanceTimeBy(randomDelay)
-                DownloadResult.Success(app)
+                AppDownloadResult.Success(app)
             }
             coEvery { appManagement.installApk(app) } answers {
                 val randomDelay = (2..60).random() * 1000L // Random delay between 2 seconds to 1 minute
@@ -176,7 +176,7 @@ class AppManagementTest {
             coEvery { appManagement.downloadAPK(app) } answers {
                 val randomDelay = (5..180).random() * 1000L // Random delay between 5 seconds to 3 minutes
                 advanceTimeBy(randomDelay)
-                DownloadResult.Success(app)
+                AppDownloadResult.Success(app)
             }
             coEvery { appManagement.installApk(app) } answers {
                 val randomDelay = (2..60).random() * 1000L // Random delay between 2 seconds to 1 minute

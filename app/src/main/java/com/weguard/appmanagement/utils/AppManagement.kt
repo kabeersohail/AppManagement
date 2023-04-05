@@ -18,7 +18,7 @@ class AppManagement(
 
         for (app in apps) {
             when (val downloadResult = downloadAPK(app)) {
-                is DownloadResult.Success -> {
+                is AppDownloadResult.Success -> {
                     val isAdded = downloadedApps.add(downloadResult.app)
 
                     if(isAdded) {
@@ -27,7 +27,7 @@ class AppManagement(
 
                     installApps(downloadedApps, installedApps)
                 }
-                is DownloadResult.Failure -> {
+                is AppDownloadResult.Failure -> {
                     failedApkMapList.add(downloadResult.app to downloadResult.reason)
                 }
             }
@@ -57,12 +57,12 @@ class AppManagement(
         }
     }
 
-    internal suspend fun downloadAPK(app: App): DownloadResult {
+    internal suspend fun downloadAPK(app: App): AppDownloadResult {
         println(app)
         // add checks before calling downloadAPK like isNetworkAvailable, isStorageAvailable
         // perform download operation and logs download progress
         delay(1000) // simulate download operation
-        return DownloadResult.Success(app)
+        return AppDownloadResult.Success(app)
     }
 
     internal suspend fun installApk(app: App): ApkInstallationResult {

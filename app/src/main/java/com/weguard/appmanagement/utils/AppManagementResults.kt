@@ -1,8 +1,8 @@
 package com.weguard.appmanagement.utils
 
-sealed class DownloadResult {
-    data class Success(val app: App) : DownloadResult()
-    data class Failure(val app: App, val reason: String) : DownloadResult()
+sealed class AppDownloadResult {
+    data class Success(val app: App) : AppDownloadResult()
+    data class Failure(val app: App, val reason: String) : AppDownloadResult()
 }
 
 sealed class ApkInstallationResult {

@@ -42,7 +42,7 @@ class AppManagementTestActualDelay {
             coEvery { appManagement.downloadAPK(app) } answers {
                 val randomDelay = (1..10).random() * 1000L // Random delay between 1 to 10 seconds
                 runBlocking { delay(randomDelay) }
-                DownloadResult.Success(app)
+                AppDownloadResult.Success(app)
             }
             coEvery { appManagement.installApk(app) } answers {
                 val randomDelay = (1..10).random() * 1000L // Random delay between 1 to 10 seconds
