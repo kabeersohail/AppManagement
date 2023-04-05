@@ -11,6 +11,11 @@ class AppManagementV3(
 ) {
 
     suspend fun execute() {
+
+        if(apps.isEmpty()) {
+            return
+        }
+
         downloadApps(apps).collect { downloadResult ->
             when(downloadResult) {
                 is AppDownloadResult.Failure -> {
